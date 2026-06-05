@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="MonMenu — Assistant intelligent de gestion alimentaire : recettes, planning, frigo anti-gaspi, courses et budget." />
+  <meta name="theme-color" content="#D67D4A" />
+  <title>MonMenu — Planificateur de repas</title>
+
+  <!-- Manifeste PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" href="icons/favicon-64.png" />
+
+  <!-- Polices : Fraunces (display) + DM Sans (corps) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- ════════ Rail latéral (desktop) ════════ -->
+    <aside class="rail" id="rail">
+      <div class="rail-brand">
+        <div class="rail-logo">M</div>
+        <div>
+          <h1>MonMenu</h1>
+          <p>Planifier · Cuisiner · Anti-gaspi</p>
+        </div>
+      </div>
+      <nav class="rail-nav" id="rail-nav">
+        <button class="rail-link active" data-view="decouverte"><span class="ri">✨</span> Découvrir</button>
+        <button class="rail-link" data-view="assistant"><span class="ri">🤖</span> Assistant IA</button>
+        <button class="rail-link" data-view="carnet"><span class="ri">📖</span> Mon carnet</button>
+        <button class="rail-link" data-view="planning"><span class="ri">📅</span> Planning</button>
+        <button class="rail-link" data-view="frigo"><span class="ri">🧊</span> Mon frigo</button>
+        <button class="rail-link" data-view="courses"><span class="ri">🛒</span> Courses</button>
+        <button class="rail-link" data-view="budget"><span class="ri">📊</span> Budget & Nutrition</button>
+      </nav>
+      <div class="rail-foot">
+        <button class="rail-link" data-view="reglages"><span class="ri">⚙️</span> Réglages</button>
+        <span class="sync-pill" id="sync-pill"><span class="dot"></span><span id="sync-label">À jour</span></span>
+      </div>
+    </aside>
+
+    <!-- ════════ Zone principale ════════ -->
+    <div class="app-main">
+
+      <!-- En-tête mobile -->
+      <header class="topbar">
+        <div class="topbar-brand">
+          <div class="topbar-logo">M</div>
+          <h1>MonMenu</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn topbar-nav" data-view="assistant" title="Assistant IA" aria-label="Assistant IA">🤖</button>
+          <button class="icon-btn topbar-nav" data-view="budget" title="Budget &amp; Nutrition" aria-label="Budget et nutrition">📊</button>
+          <button class="icon-btn topbar-nav" data-view="reglages" title="Réglages" aria-label="Réglages">⚙️</button>
+          <span class="sync-pill" id="sync-pill-m"><span class="dot"></span><span>Sync</span></span>
+          <span class="chip-date" id="header-date">--</span>
+        </div>
+      </header>
+
+      <main class="content">
+
+        <!-- ════════ 1. DÉCOUVRIR ════════ -->
+        <section id="view-decouverte" class="view active">
+          <div class="view-head">
+            <h2 class="view-title">Découvrir des idées</h2>
+            <p class="view-desc">Recherchez des milliers de recettes en ligne (TheMealDB) ou parcourez nos suggestions de saison.</p>
+          </div>
+
+          <div class="search">
+            <span class="ri">🔎</span>
+            <input type="text" id="discover-search" class="input" placeholder="Rechercher une recette ou un ingrédient…" />
+          </div>
+
+          <div class="chips" id="discover-mode">
+            <span class="chip active" data-mode="name">Par nom</span>
+            <span class="chip" data-mode="ingredient">Par ingrédient</span>
+            <span class="chip" data-mode="category">Par catégorie</span>
+            <span class="chip" data-mode="area">Par pays</span>
+            <span class="chip" data-mode="local">Suggestions de saison</span>
+          </div>
+
+          <div class="chips hidden" id="discover-facets"></div>
+
+          <div class="muted-line" id="discover-count">Tapez votre recherche pour commencer…</div>
+          <div class="recipe-grid" id="discover-grid"></div>
+          <div id="discover-status"></div>
+        </section>
+
+        <!-- ════════ 2. ASSISTANT IA ════════ -->
+        <section id="view-assistant" class="view">
+          <div class="view-head">
+            <h2 class="view-title">Assistant culinaire IA</h2>
+            <p class="view-desc">Décrivez ce que vous avez ou ce que vous voulez : l'IA génère une recette complète ou un menu, avec quantités, étapes, coût et calories.</p>
+          </div>
+
+          <div class="card">
+            <textarea id="ai-prompt" class="input" placeholder="Ex : « J'ai des tomates, du riz et du poulet » · « Crée un menu pour 7 jours à moins de 50 € » · « Propose des plats riches en protéines »"></textarea>
+            <div class="suggestion-pills" id="ai-suggestions">
+              <span class="sg-pill" data-p="J'ai des tomates, du riz et du poulet, propose une recette">🍅 Avec mes ingrédients</span>
+              <span class="sg-pill" data-p="Crée un menu équilibré pour 7 jours">📅 Menu 7 jours</span>
+              <span class="sg-pill" data-p="Propose un menu de la semaine à moins de 50 € pour 2 personnes">🪙 Menu &lt; 50 €</span>
+              <span class="sg-pill" data-p="Propose des repas riches en protéines">💪 Riche en protéines</span>
+              <span class="sg-pill" data-p="Utilise uniquement les ingrédients de mon frigo">🧊 Vide-frigo</span>
+            </div>
+            <button class="btn btn-accent btn-block" id="ai-send">✨ Générer</button>
+          </div>
+
+          <div id="ai-result" class="mt-16"></div>
+        </section>
+
+        <!-- ════════ 3. MON CARNET ════════ -->
+        <section id="view-carnet" class="view">
+          <!-- Liste -->
+          <div id="carnet-list-view">
+            <div class="view-head">
+              <h2 class="view-title">Mon carnet</h2>
+              <p class="view-desc">Vos recettes enregistrées, créées ou importées. Modifiez, dupliquez, mettez en favori.</p>
+            </div>
+            <div class="search">
+              <span class="ri">🔎</span>
+              <input type="text" id="carnet-search" class="input" placeholder="Rechercher dans mon carnet…" />
+            </div>
+            <div class="chips" id="carnet-filters">
+              <span class="chip active" data-filter="all">Tout</span>
+              <span class="chip" data-filter="fav">★ Favoris</span>
+            </div>
+            <div class="muted-line" id="carnet-count">0 recette</div>
+            <div id="carnet-list"></div>
+          </div>
+          <!-- Détail -->
+          <div id="carnet-detail-view" class="hidden">
+            <button class="btn btn-ghost btn-sm" id="carnet-back" style="margin-bottom:14px;">← Retour au carnet</button>
+            <div id="carnet-detail"></div>
+          </div>
+        </section>
+
+        <!-- ════════ 4. PLANNING ════════ -->
+        <section id="view-planning" class="view">
+          <div class="view-head">
+            <h2 class="view-title">Mon planning</h2>
+            <p class="view-desc">Organisez vos repas par jour, semaine ou mois. Glissez-déposez, dupliquez, générez une semaine automatiquement.</p>
+          </div>
+
+          <div class="row between mb-16">
+            <div class="seg" id="plan-mode">
+              <button class="active" data-mode="day">Jour</button>
+              <button data-mode="week">Semaine</button>
+              <button data-mode="month">Mois</button>
+            </div>
+            <div class="row">
+              <button class="btn btn-ghost btn-sm" id="plan-auto" title="Générer une semaine">🎲 Auto</button>
+              <button class="btn btn-ghost btn-sm" id="plan-print">🖨️</button>
+            </div>
+          </div>
+
+          <div id="plan-body"></div>
+
+          <h3 class="sec-label">Résumé budget & nutrition</h3>
+          <div class="kpi-grid" id="plan-kpis"></div>
+        </section>
+
+        <!-- ════════ 5. MON FRIGO ════════ -->
+        <section id="view-frigo" class="view">
+          <div class="view-head">
+            <h2 class="view-title">Mon frigo</h2>
+            <p class="view-desc">Suivez vos stocks et dates de péremption pour cuisiner malin et éviter le gaspillage.</p>
+          </div>
+
+          <div id="frigo-alerts"></div>
+          <div class="kpi-grid mb-16" id="frigo-stats"></div>
+
+          <div class="row mb-16">
+            <button class="btn btn-sage flex-1" id="frigo-cook">🍳 Que cuisiner avec mon frigo&nbsp;?</button>
+          </div>
+
+          <div class="search">
+            <span class="ri">🔎</span>
+            <input type="text" id="frigo-search" class="input" placeholder="Filtrer mes ingrédients…" />
+          </div>
+          <div class="chips" id="frigo-filters">
+            <span class="chip active" data-cat="all">Tout</span>
+            <span class="chip" data-cat="legumes">🥬 Légumes</span>
+            <span class="chip" data-cat="fruits">🍎 Fruits</span>
+            <span class="chip" data-cat="proteines">🥩 Protéines</span>
+            <span class="chip" data-cat="laitiers">🧀 Laitiers</span>
+            <span class="chip" data-cat="feculents">🍞 Féculents</span>
+            <span class="chip" data-cat="condiments">🫙 Condiments</span>
+            <span class="chip" data-cat="autres">📦 Autres</span>
+          </div>
+          <div class="muted-line" id="frigo-count">0 aliment</div>
+          <div id="frigo-list"></div>
+        </section>
+
+        <!-- ════════ 6. COURSES ════════ -->
+        <section id="view-courses" class="view">
+          <div class="view-head">
+            <h2 class="view-title">Liste de courses</h2>
+            <p class="view-desc">Générée depuis votre planning : ingrédients fusionnés, quantités additionnées, classés par rayon. Le frigo est déduit automatiquement.</p>
+          </div>
+
+          <div class="row wrap mb-16" style="gap:8px;">
+            <button class="btn btn-accent grow" id="courses-generate">⚡ Générer depuis le planning</button>
+            <button class="btn btn-ghost" id="courses-pdf">📄 PDF</button>
+            <button class="btn btn-ghost" id="courses-print">🖨️</button>
+            <button class="btn btn-ghost" id="courses-clear">🧹</button>
+          </div>
+
+          <div class="progress-card hidden" id="courses-progress">
+            <div class="progress-meta">
+              <span id="courses-prog-label">0 / 0 articles</span>
+              <span id="courses-prog-pct">0 %</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill" id="courses-prog-fill" style="width:0;background:var(--sage);"></div></div>
+          </div>
+
+          <div class="muted-line"><span id="courses-count">0</span> article(s)</div>
+          <div id="courses-list"></div>
+        </section>
+
+        <!-- ════════ 7. BUDGET & NUTRITION ════════ -->
+        <section id="view-budget" class="view">
+          <div class="view-head">
+            <h2 class="view-title">Budget & Nutrition</h2>
+            <p class="view-desc">Coûts journaliers, hebdomadaires et mensuels, évolution sur les semaines planifiées et suivi nutritionnel.</p>
+          </div>
+
+          <div class="kpi-grid mb-16" id="budget-kpis"></div>
+
+          <h3 class="sec-label">Évolution du coût (par semaine planifiée)</h3>
+          <div class="chart-wrap mb-16"><canvas id="budget-chart"></canvas></div>
+
+          <h3 class="sec-label">Nutrition du jour sélectionné <small style="text-transform:none;font-weight:400;" id="nutri-day-label"></small></h3>
+          <div class="card" id="nutri-today"></div>
+
+          <h3 class="sec-label">Mes objectifs nutritionnels</h3>
+          <div class="card" id="nutri-goals"></div>
+        </section>
+
+        <!-- ════════ RÉGLAGES ════════ -->
+        <section id="view-reglages" class="view">
+          <div class="view-head">
+            <h2 class="view-title">Réglages</h2>
+            <p class="view-desc">Configuration de l'IA, synchronisation, sauvegarde et restauration des données.</p>
+          </div>
+
+          <h3 class="sec-label">Assistant IA</h3>
+          <div class="card mb-16">
+            <p style="font-size:0.86rem;color:var(--text-2);line-height:1.5;">
+              L'assistant fonctionne avec <b>votre propre clé d'API</b> (stockée uniquement sur cet appareil, jamais envoyée ailleurs). Compatible OpenAI et Anthropic.
+            </p>
+            <label class="field-label">Fournisseur</label>
+            <select id="ai-provider" class="input">
+              <option value="openai">OpenAI (gpt-4o-mini…)</option>
+              <option value="anthropic">Anthropic (Claude)</option>
+              <option value="custom">Compatible OpenAI (URL personnalisée)</option>
+            </select>
+            <label class="field-label">Modèle</label>
+            <input type="text" id="ai-model" class="input" placeholder="gpt-4o-mini" />
+            <label class="field-label" id="ai-url-label" style="display:none;">URL de base</label>
+            <input type="text" id="ai-baseurl" class="input" placeholder="https://api.exemple.com/v1" style="display:none;" />
+            <label class="field-label">Clé d'API</label>
+            <input type="password" id="ai-key" class="input" placeholder="sk-…" />
+            <button class="btn btn-primary btn-block mt-12" id="ai-save">💾 Enregistrer la configuration IA</button>
+          </div>
+
+          <h3 class="sec-label">Synchronisation multi-appareils</h3>
+          <div class="card mb-16">
+            <p style="font-size:0.86rem;color:var(--text-2);line-height:1.5;">
+              Vos données sont stockées localement (IndexedDB) et synchronisées entre les onglets ouverts. L'architecture est prête pour brancher <b>Firebase</b> ou <b>Supabase</b> (voir <code>js/sync.js</code> et le README).
+            </p>
+            <div class="kv"><span class="k">Moteur de stockage</span><span id="rg-engine">IndexedDB</span></div>
+            <div class="kv"><span class="k">Recettes</span><span id="rg-recipes">0</span></div>
+            <div class="kv"><span class="k">Articles frigo</span><span id="rg-fridge">0</span></div>
+            <div class="kv"><span class="k">Jours planifiés</span><span id="rg-plan">0</span></div>
+          </div>
+
+          <h3 class="sec-label">Données</h3>
+          <div class="row wrap" style="gap:8px;">
+            <button class="btn btn-ghost grow" id="rg-export">⬇️ Exporter (JSON)</button>
+            <button class="btn btn-ghost grow" id="rg-import">⬆️ Importer (JSON)</button>
+            <button class="btn btn-danger grow" id="rg-reset">🗑️ Réinitialiser</button>
+          </div>
+          <input type="file" id="rg-file" accept="application/json" class="hidden" />
+
+          <p class="text-c" style="margin-top:24px;font-size:0.74rem;color:var(--muted);">MonMenu · PWA installable · fonctionne hors ligne</p>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" id="fab" aria-label="Ajouter">+</button>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Modales génériques (le contenu est injecté par JS) -->
+  <div class="overlay" id="ov-recipe"><div class="sheet"><div class="sheet-grab"></div><div id="ov-recipe-body"></div></div></div>
+  <div class="overlay" id="ov-form"><div class="sheet"><div class="sheet-grab"></div><div id="ov-form-body"></div></div></div>
+  <div class="overlay" id="ov-pick"><div class="sheet"><div class="sheet-grab"></div><div id="ov-pick-body"></div></div></div>
+
+  <!-- Barre inférieure (mobile) -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="bn-item active" data-view="decouverte"><span class="ri">✨</span><span class="lbl">Découvrir</span></button>
+    <button class="bn-item" data-view="carnet"><span class="ri">📖</span><span class="lbl">Carnet</span></button>
+    <button class="bn-item" data-view="planning"><span class="ri">📅</span><span class="lbl">Planning</span></button>
+    <button class="bn-item" data-view="frigo"><span class="ri">🧊</span><span class="lbl">Frigo</span></button>
+    <button class="bn-item" data-view="courses"><span class="ri">🛒</span><span class="lbl">Courses</span></button>
+  </nav>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

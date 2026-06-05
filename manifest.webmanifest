@@ -1,0 +1,19 @@
+{
+  "name": "MonMenu — Planificateur & Anti-gaspi",
+  "short_name": "MonMenu",
+  "description": "Découverte de recettes, assistant IA, planning des repas, frigo intelligent, liste de courses automatique, budget et nutrition.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": ".",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F6F2EA",
+  "theme_color": "#D67D4A",
+  "categories": ["food", "lifestyle", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
