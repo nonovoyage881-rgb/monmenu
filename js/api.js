@@ -111,7 +111,8 @@ Schéma attendu :
     { "day": "Lundi", "meals": { "lunch": <recipe>, "dinner": <recipe> } }
   ]
 }
-Règles : quantités réalistes, nutrition par portion, coûts en euros pour la France. Réponds toujours en français.`;
+Règles : quantités réalistes, nutrition par portion, coûts en euros pour la France. Réponds toujours en français.
+IMPORTANT : les CLÉS du JSON doivent rester EXACTEMENT en anglais comme ci-dessus (name, emoji, category, portions, ingredients, name, qty, unit, steps, nutrition, calories, protein, carbs, fat). Seules les VALEURS sont en français. Remplis TOUJOURS les tableaux "ingredients" et "steps" avec du contenu détaillé.`;
 
 /* Construit le message utilisateur en y injectant le contexte (frigo, objectifs) si pertinent */
 function buildUserMessage(prompt) {
@@ -184,15 +185,47 @@ export async function askAI(prompt) {
 
 /* Normalise une recette issue de l'IA vers notre format de carnet */
 export function aiRecipeToStore(r) {
+  r = r || {};
+  const pick = (...keys) => {
+    for (const k of keys) { if (r[k] !== undefined && r[k] !== null && r[k] !== '') return r[k]; }
+    return undefined;
+  };
+  // Ingrédients : objets {name,qty,unit} en anglais OU en français, ou simples chaînes
+  const rawIng = pick('ingredients', 'ingrédients', 'ingredient', 'ingrédient') || [];
+  const ingredients = (Array.isArray(rawIng) ? rawIng : []).map(i => {
+    if (typeof i === 'string') return { name: i, qty: 0, unit: '' };
+    i = i || {};
+    return {
+      name: i.name || i.nom || i.ingredient || i.ingrédient || i.libelle || i.libellé || '',
+      qty: Number(i.qty ?? i.quantity ?? i.quantite ?? i.quantité ?? i.qte ?? 0) || 0,
+      unit: i.unit || i.unite || i.unité || i.mesure || '',
+    };
+  }).filter(i => i.name);
+  // Étapes : tableau de chaînes, ou d'objets {step|instruction|texte|description}
+  const rawSteps = pick('steps', 'etapes', 'étapes', 'instructions', 'preparation', 'préparation') || [];
+  const steps = (Array.isArray(rawSteps) ? rawSteps : []).map(s =>
+    typeof s === 'string' ? s : (s && (s.step || s.instruction || s.texte || s.text || s.description)) || ''
+  ).filter(Boolean);
+  // Nutrition : clés EN ou FR
+  const nut = pick('nutrition', 'valeurs', 'valeursNutritionnelles', 'nutritionParPortion');
   return {
     id: 'ai_' + uid(),
-    name: r.name || 'Recette IA', emoji: r.emoji || '🤖', image: null,
-    category: r.category || 'Plat', origin: r.origin || '',
-    tags: ['IA'], portions: r.portions || 4,
-    prepTime: r.prepTime || 0, cookTime: r.cookTime || 0,
-    ingredients: (r.ingredients || []).map(i => ({ name: i.name, qty: Number(i.qty) || 0, unit: i.unit || '' })),
-    steps: r.steps || [],
-    nutrition: r.nutrition || null,
+    name: pick('name', 'nom', 'title', 'titre') || 'Recette IA',
+    emoji: pick('emoji') || '🤖', image: null,
+    category: pick('category', 'categorie', 'catégorie') || 'Plat',
+    origin: pick('origin', 'origine', 'pays') || '',
+    tags: ['IA'],
+    portions: Number(pick('portions', 'servings', 'parts')) || 4,
+    prepTime: Number(pick('prepTime', 'tempsPreparation', 'prep')) || 0,
+    cookTime: Number(pick('cookTime', 'tempsCuisson', 'cuisson')) || 0,
+    ingredients,
+    steps,
+    nutrition: nut ? {
+      calories: Number(nut.calories ?? nut.kcal ?? nut.energie ?? nut.énergie ?? 0) || 0,
+      protein: Number(nut.protein ?? nut.proteines ?? nut.protéines ?? 0) || 0,
+      carbs: Number(nut.carbs ?? nut.glucides ?? 0) || 0,
+      fat: Number(nut.fat ?? nut.lipides ?? 0) || 0,
+    } : null,
     source: 'ai',
   };
 }
