@@ -8,7 +8,7 @@
    GitHub Pages (ex : https://user.github.io/monmenu/).
    ════════════════════════════════════════════════════════════════ */
 
-const VERSION = 'monmenu-v5';
+const VERSION = 'monmenu-v6';
 const SHELL_CACHE = `${VERSION}-shell`;
 const API_CACHE = `${VERSION}-api`;
 const FONT_CACHE = `${VERSION}-fonts`;

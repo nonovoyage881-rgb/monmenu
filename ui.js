@@ -8,9 +8,9 @@ import {
   state, getRecipe, computeRecipe, fridgeHas,
   addRecipe, updateRecipe, deleteRecipe, duplicateRecipe, toggleFavorite, addToPlan,
 } from './store.js';
-import { MEALS, FRIDGE_CATEGORIES } from './config.js';
+import { MEALS, FRIDGE_CATEGORIES, fr } from './config.js';
 import { esc, qtyFmt, euro, round, openModal, closeModal, toast, todayISO, fmtShort, weekDates, uid } from './utils.js';
-import { importFromUrl } from './api.js';
+import { importFromUrl, translateRecipe } from './api.js';
 
 /* ───────── Carte recette (grille découverte) ───────── */
 export function recipeCardHTML(r) {
@@ -22,12 +22,12 @@ export function recipeCardHTML(r) {
     <article class="rcard" data-recipe="${esc(r.id)}">
       <div class="rcard-img">${img}
         <button class="rcard-fav" data-fav="${esc(r.id)}" title="Favori">${fav ? '❤️' : '🤍'}</button>
-        ${r.category ? `<span class="rcard-cat">${esc(r.category)}</span>` : ''}
+        ${r.category ? `<span class="rcard-cat">${esc(fr(r.category))}</span>` : ''}
       </div>
       <div class="rcard-body">
         <h3 class="rcard-name">${esc(r.name)}</h3>
         <div class="rcard-meta">
-          ${r.origin ? `<span class="tag t-sage">${esc(r.origin)}</span>` : ''}
+          ${r.origin ? `<span class="tag t-sage">${esc(fr(r.origin))}</span>` : ''}
           ${(r.prepTime + r.cookTime) ? `<span class="tag">${r.prepTime + r.cookTime} min</span>` : ''}
         </div>
       </div>
@@ -44,7 +44,7 @@ export function listItemHTML(r) {
       <div class="li-info">
         <div class="li-name">${r.favorite ? '★ ' : ''}${esc(r.name)}</div>
         <div class="li-sub">
-          <span>${esc(r.category || 'Plat')}</span>
+          <span>${esc(fr(r.category) || 'Plat')}</span>
           <span>· ${r.portions} pers.</span>
           <span>· ${Math.round(c.perPortion.kcal)} kcal</span>
           <span>· ${euro(c.perPortion.cost)}/pers</span>
@@ -72,8 +72,8 @@ export function openRecipeSheet(recipe, { portions } = {}) {
       </div>
       <div class="detail-hero">${img}</div>
       <div class="row wrap" style="gap:6px;margin-bottom:6px;">
-        ${recipe.origin ? `<span class="tag t-sage">📍 ${esc(recipe.origin)}</span>` : ''}
-        ${recipe.category ? `<span class="tag t-terra">${esc(recipe.category)}</span>` : ''}
+        ${recipe.origin ? `<span class="tag t-sage">📍 ${esc(fr(recipe.origin))}</span>` : ''}
+        ${recipe.category ? `<span class="tag t-terra">${esc(fr(recipe.category))}</span>` : ''}
         ${(recipe.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}
       </div>
 
@@ -108,6 +108,8 @@ export function openRecipeSheet(recipe, { portions } = {}) {
       ${recipe.youtube ? `<a class="btn btn-ghost btn-block mt-12" href="${esc(recipe.youtube)}" target="_blank" rel="noopener">▶️ Voir la vidéo</a>` : ''}
 
       <div class="stack mt-16">
+        ${recipe.source === 'mealdb' && !recipe._translated
+          ? `<button class="btn btn-ghost" data-translate>🌐 Traduire en français</button>` : ''}
         ${inCarnet ? `
           <button class="btn btn-accent" data-plan>📅 Ajouter au planning</button>
           <div class="row" style="gap:8px;">
@@ -138,6 +140,24 @@ export function openRecipeSheet(recipe, { portions } = {}) {
       let id = recipe.id;
       if (!getRecipe(id)) { addRecipe({ ...recipe }).then(s => openPlanPicker(s.id)); }
       else openPlanPicker(id);
+    });
+    body.querySelector('[data-translate]')?.addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      btn.disabled = true; btn.textContent = '⏳ Traduction en cours…';
+      try {
+        const fr2 = await translateRecipe(recipe);
+        recipe.name = fr2.name || recipe.name;
+        recipe.category = fr2.category || recipe.category;
+        recipe.origin = fr2.origin || recipe.origin;
+        if (fr2.ingredients && fr2.ingredients.length) recipe.ingredients = fr2.ingredients;
+        if (fr2.steps && fr2.steps.length) recipe.steps = fr2.steps;
+        recipe._translated = true;
+        render();
+        toast('Recette traduite 🇫🇷');
+      } catch (err) {
+        btn.disabled = false; btn.textContent = '🌐 Traduire en français';
+        toast(err && err.code === 'NO_KEY' ? 'Configurez l\'IA dans Réglages' : 'Traduction indisponible');
+      }
     });
     body.querySelector('[data-edit]')?.addEventListener('click', () => { closeModal('ov-recipe'); openRecipeForm(recipe); });
     body.querySelector('[data-dup]')?.addEventListener('click', async () => { await duplicateRecipe(recipe.id); toast('Recette dupliquée'); closeModal('ov-recipe'); });

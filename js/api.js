@@ -371,3 +371,23 @@ function htmlToText(html) {
     .replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n')
     .trim();
 }
+
+/* Traduit une recette en français via l'IA (à la demande). */
+export async function translateRecipe(recipe) {
+  const payload = {
+    name: recipe.name, category: recipe.category, origin: recipe.origin,
+    portions: recipe.portions,
+    ingredients: recipe.ingredients, steps: recipe.steps,
+  };
+  const result = await askAI(
+    `Traduis intégralement cette recette en français : le nom, le nom de chaque ingrédient, et chaque étape. Conserve les quantités et les unités telles quelles. Ne change pas les nombres. Réponds en type "recipe".\n\n${JSON.stringify(payload)}`
+  );
+  if (result && result.recipe) {
+    return {
+      ...result.recipe,
+      image: recipe.image || result.recipe.image,
+      emoji: recipe.emoji || result.recipe.emoji,
+    };
+  }
+  throw new Error('Traduction impossible.');
+}

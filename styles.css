@@ -7,31 +7,31 @@
 
 /* ───────────────────────────── 1. Variables & thème ───────────────────────────── */
 :root {
-  /* Couleurs de fond */
-  --bg:          #F6F2EA;   /* beige clair    */
-  --bg-alt:      #EFE9DD;   /* beige profond  */
-  --surface:     #FFFDF8;   /* blanc cassé    */
-  --card:        #FCFAF4;
-  --border:      #E7E0D3;
-  --border-soft: #F0EBE0;
+  /* Couleurs de fond — thème Nordique */
+  --bg:          #F4F4F1;   /* gris très clair */
+  --bg-alt:      #ECECE7;   /* gris doux       */
+  --surface:     #FFFFFF;   /* blanc pur       */
+  --card:        #FAFAF8;
+  --border:      #E4E4DE;
+  --border-soft: #EFEFEA;
 
   /* Texte */
-  --text:    #211E19;
-  --text-2:  #5C554A;
-  --muted:   #968C7B;
+  --text:    #1E1E1C;
+  --text-2:  #56564F;
+  --muted:   #8A8A82;
 
-  /* Accents */
-  --sage:        #7E9B82;   /* vert sauge          */
-  --sage-deep:   #5E7A63;
-  --sage-tint:   #EAF1EB;
-  --terra:       #D67D4A;   /* orange doux / terracotta */
-  --terra-deep:  #BC6537;
-  --terra-tint:  #FBEFE6;
-  --gold:        #C9A24B;   /* or chaud            */
-  --gold-tint:   #FAF3E0;
-  --berry:       #9C5A7C;   /* prune (alertes douces) */
-  --danger:      #C7553E;
-  --danger-tint: #FBEAE5;
+  /* Accents — bleu ardoise / sauge / argile */
+  --sage:        #5E7E96;   /* bleu ardoise (couleur primaire) */
+  --sage-deep:   #4A6679;
+  --sage-tint:   #E9EEF2;
+  --terra:       #C2876B;   /* argile (accent)     */
+  --terra-deep:  #A66E54;
+  --terra-tint:  #F5ECE6;
+  --gold:        #93A98C;   /* sauge (secondaire)  */
+  --gold-tint:   #ECF0EA;
+  --berry:       #7E6E8A;   /* prune douce (alertes) */
+  --danger:      #BF5B47;
+  --danger-tint: #F6E8E4;
 
   /* Géométrie */
   --radius-sm: 10px;
@@ -42,13 +42,13 @@
   --maxw:      940px;
 
   /* Ombres douces */
-  --shadow-xs: 0 1px 2px rgba(33,30,25,0.04);
-  --shadow:    0 6px 24px rgba(33,30,25,0.06);
-  --shadow-lg: 0 18px 48px rgba(33,30,25,0.12);
+  --shadow-xs: 0 1px 2px rgba(30,30,28,0.04);
+  --shadow:    0 6px 24px rgba(30,30,28,0.06);
+  --shadow-lg: 0 18px 48px rgba(30,30,28,0.12);
 
-  /* Typographie */
-  --font-serif: 'Fraunces', 'Playfair Display', Georgia, serif;
-  --font-sans:  'DM Sans', system-ui, -apple-system, sans-serif;
+  /* Typographie — thème Nordique */
+  --font-serif: 'Space Grotesk', system-ui, sans-serif;
+  --font-sans:  'Inter', system-ui, -apple-system, sans-serif;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -466,7 +466,7 @@ label.field-label { display: block; font-size: 0.8rem; font-weight: 600; color: 
 @media (min-width: 900px) { .toast { bottom: 28px; } }
 
 .overlay {
-  position: fixed; inset: 0; background: rgba(33,30,25,0.42); backdrop-filter: blur(5px);
+  position: fixed; inset: 0; background: rgba(30,30,28,0.42); backdrop-filter: blur(5px);
   display: flex; align-items: flex-end; justify-content: center; z-index: 1000;
   opacity: 0; pointer-events: none; transition: opacity 0.22s;
 }
