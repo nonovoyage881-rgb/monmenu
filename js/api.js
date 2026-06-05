@@ -269,7 +269,12 @@ export async function importFromUrl(url) {
 
   // 1) Données structurées JSON-LD
   const ld = extractJsonLdRecipe(html);
-  if (ld) return jsonLdToRecipe(ld);
+  if (ld) {
+    try {
+      const r = jsonLdToRecipe(ld);
+      if (r.ingredients.length || r.steps.length) return r;
+    } catch { /* structure inattendue → on bascule sur l'IA */ }
+  }
 
   // 2) Repli : on demande à l'IA de structurer le texte de la page
   const text = htmlToText(html).slice(0, 6000);
@@ -304,16 +309,23 @@ function findRecipeNode(data) {
 
 /* Convertit un nœud JSON-LD Recipe en recette prête pour le carnet */
 function jsonLdToRecipe(n) {
-  const ingredients = (n.recipeIngredient || n.ingredients || [])
-    .map(s => ({ name: String(s).trim(), qty: 0, unit: '' }))
+  const toArr = v => Array.isArray(v) ? v : (v == null || v === '' ? [] : [v]);
+
+  const rawIng = n.recipeIngredient || n.ingredients;
+  const ingArr = typeof rawIng === 'string' ? rawIng.split(/\r?\n+/) : toArr(rawIng);
+  const ingredients = ingArr
+    .map(s => {
+      const name = (s && typeof s === 'object' ? (s.name || s.text || '') : String(s)).trim();
+      return { name, qty: 0, unit: '' };
+    })
     .filter(i => i.name);
 
   let steps = [];
   const ri = n.recipeInstructions;
   if (typeof ri === 'string') {
     steps = ri.split(/\r?\n+/).map(s => s.trim()).filter(Boolean);
-  } else if (Array.isArray(ri)) {
-    ri.forEach(s => {
+  } else {
+    toArr(ri).forEach(s => {
       if (typeof s === 'string') steps.push(s.trim());
       else if (s && s['@type'] === 'HowToSection' && Array.isArray(s.itemListElement)) {
         s.itemListElement.forEach(it => { const x = it.text || it.name; if (x) steps.push(String(x).trim()); });
