@@ -41,8 +41,32 @@ export default {
       return json({ error: 'Accès refusé : mot de passe familial invalide.' }, 401, cors);
     }
 
-    // 4) Relai vers Gemini avec la VRAIE clé (ajoutée ici, jamais exposée)
+    // 4) Mode « récupérer une page de recette » (import depuis un lien)
     const url = new URL(request.url);
+    if (url.pathname === '/fetch' || url.pathname.endsWith('/fetch')) {
+      let target = '';
+      try { target = (await request.json()).url || ''; } catch { /* corps invalide */ }
+      if (!/^https?:\/\//i.test(target)) return json({ error: 'URL invalide.' }, 400, cors);
+      // Anti-SSRF basique : on bloque les adresses internes
+      try {
+        const host = new URL(target).hostname;
+        if (/^(localhost|127\.|10\.|192\.168\.|169\.254\.|0\.|::1)/i.test(host)) {
+          return json({ error: 'Hôte non autorisé.' }, 400, cors);
+        }
+      } catch { return json({ error: 'URL invalide.' }, 400, cors); }
+      try {
+        const page = await fetch(target, {
+          headers: { 'user-agent': 'Mozilla/5.0 (compatible; MonMenuBot/1.0)' },
+          redirect: 'follow',
+        });
+        const html = await page.text();
+        return json({ html: html.slice(0, 600000) }, 200, cors); // borne la taille
+      } catch (e) {
+        return json({ error: 'Impossible de récupérer cette page.' }, 502, cors);
+      }
+    }
+
+    // 5) Relai vers Gemini avec la VRAIE clé (ajoutée ici, jamais exposée)
     const upstreamUrl = UPSTREAM + url.pathname; // ex : /v1beta/openai/chat/completions
     const res = await fetch(upstreamUrl, {
       method: 'POST',
