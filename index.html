@@ -9,15 +9,15 @@
 
   <!-- Manifeste PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="icon" type="image/png" href="icons/favicon-64.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" type="image/png" href="favicon-64.png" />
 
-  <!-- Police : Nunito (ronde et très lisible) — thème Botanique -->
+  <!-- Police : Lexend (conçue pour la lisibilité) — thème Botanique -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-shell">
@@ -273,10 +273,18 @@
 
           <h3 class="sec-label">Synchronisation multi-appareils</h3>
           <div class="card mb-16">
-            <p style="font-size:0.86rem;color:var(--text-2);line-height:1.5;">
-              Vos données sont stockées localement (IndexedDB) et synchronisées entre les onglets ouverts. L'architecture est prête pour brancher <b>Firebase</b> ou <b>Supabase</b> (voir <code>js/sync.js</code> et le README).
+            <p style="font-size:0.92rem;color:var(--text-2);line-height:1.6;">
+              Pour que toute la famille partage les mêmes recettes en temps réel, connectez une base <b>Supabase</b> (gratuite). Renseignez les infos de votre projet ci-dessous — elles restent sur vos appareils.
             </p>
-            <div class="kv"><span class="k">Moteur de stockage</span><span id="rg-engine">IndexedDB</span></div>
+            <label class="field-label">URL du projet Supabase</label>
+            <input class="input" id="sy-url" placeholder="https://xxxx.supabase.co" autocomplete="off">
+            <label class="field-label">Clé « anon public »</label>
+            <input class="input" id="sy-key" placeholder="eyJhbGciOi..." autocomplete="off">
+            <label class="field-label">Code famille (le même pour tous)</label>
+            <input class="input" id="sy-family" placeholder="ex : famille-martin" autocomplete="off">
+            <button class="btn btn-primary btn-block mt-12" id="sy-save">🔄 Activer la synchronisation</button>
+            <div id="sy-status" class="mt-12"></div>
+            <div class="kv mt-12"><span class="k">État</span><span id="rg-syncstate">Locale uniquement</span></div>
             <div class="kv"><span class="k">Recettes</span><span id="rg-recipes">0</span></div>
             <div class="kv"><span class="k">Articles frigo</span><span id="rg-fridge">0</span></div>
             <div class="kv"><span class="k">Jours planifiés</span><span id="rg-plan">0</span></div>
@@ -317,6 +325,6 @@
     <button class="bn-item" data-view="courses"><span class="ri">🛒</span><span class="lbl">Courses</span></button>
   </nav>
 
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

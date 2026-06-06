@@ -263,6 +263,13 @@ export function openRecipeForm(recipe = null) {
         <div style="flex:1;"><label class="field-label">Cuisson (min)</label><input class="input" id="rf-cook" type="number" min="0" value="${r.cookTime}"></div>
       </div>
 
+      <label class="field-label">Photo (optionnel)</label>
+      <div class="row" style="gap:8px;">
+        <input class="input" id="rf-image" placeholder="Lien d'une image (https://…)" value="${esc(r.image && r.image.startsWith('http') ? r.image : '')}" style="flex:1;">
+        <label class="btn btn-ghost btn-sm" style="white-space:nowrap;cursor:pointer;">📷 Choisir…<input type="file" id="rf-file" accept="image/*" hidden></label>
+      </div>
+      ${r.image ? `<img src="${esc(r.image)}" alt="" style="width:100%;max-height:170px;object-fit:cover;border-radius:12px;margin-top:8px;">` : ''}
+
       <label class="field-label">Ingrédients</label>
       <div id="rf-ings">${r.ingredients.map(ingRow).join('')}</div>
       <button class="btn btn-ghost btn-sm" id="rf-add-ing">+ Ingrédient</button>
@@ -282,6 +289,7 @@ export function openRecipeForm(recipe = null) {
       r.portions = Math.max(1, Number(body.querySelector('#rf-portions').value) || 1);
       r.prepTime = Number(body.querySelector('#rf-prep').value) || 0;
       r.cookTime = Number(body.querySelector('#rf-cook').value) || 0;
+      r.image = body.querySelector('#rf-image').value.trim() || r.image || null;
       r.ingredients = [...body.querySelectorAll('[data-ing]')].map(row => ({
         name: row.querySelector('[data-f=name]').value.trim(),
         qty: parseFloat(row.querySelector('[data-f=qty]').value.replace(',', '.')) || 0,
@@ -292,6 +300,13 @@ export function openRecipeForm(recipe = null) {
 
     body.querySelector('[data-close]').onclick = () => closeModal('ov-form');
     body.querySelector('#rf-add-ing').onclick = () => { sync(); r.ingredients.push({ name: '', qty: '', unit: 'g' }); render(); };
+    body.querySelector('#rf-file').onchange = (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      if (f.size > 2_500_000) { toast('Image trop lourde (max ~2,5 Mo)'); return; }
+      const rd = new FileReader();
+      rd.onload = () => { sync(); r.image = rd.result; render(); };
+      rd.readAsDataURL(f);
+    };
     body.querySelector('#rf-add-step').onclick = () => { sync(); r.steps.push(''); render(); };
     body.querySelectorAll('[data-rm-ing]').forEach(b => b.onclick = () => { sync(); r.ingredients.splice(Number(b.dataset.rmIng), 1); render(); });
     body.querySelectorAll('[data-rm-step]').forEach(b => b.onclick = () => { sync(); r.steps.splice(Number(b.dataset.rmStep), 1); render(); });

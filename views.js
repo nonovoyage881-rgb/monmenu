@@ -113,8 +113,33 @@ export function renderDiscover() {
   }[d.mode];
 
   count.textContent = d.results.length ? `${d.results.length} recette(s)` : hint;
-  grid.innerHTML = d.results.map(recipeCardHTML).join('');
-  wireRecipeCards(grid, d.results);
+  if (d.results.length) {
+    grid.innerHTML = d.results.map(recipeCardHTML).join('');
+    wireRecipeCards(grid, d.results);
+  } else if (!d.loading && !d.error && (d.search.trim() || d.facet)) {
+    const q = d.search.trim() || d.facet;
+    grid.innerHTML = `<div class="empty">Aucune recette trouvée pour « ${esc(q)} ».<br>Essayez un autre mot, ou créez-la vous-même dans « Mon carnet ».</div>`;
+  } else {
+    grid.innerHTML = '';
+  }
+}
+
+/* Recherche dans les recettes locales (carnet + suggestions de saison) */
+function searchLocal(q) {
+  const n = q.toLowerCase();
+  const pool = [...state.recipes, ...SEASONAL_RECIPES];
+  const seen = new Set();
+  return pool.filter(r => {
+    if (!r || !r.name) return false;
+    const hit = r.name.toLowerCase().includes(n)
+      || (r.category || '').toLowerCase().includes(n)
+      || (r.origin || '').toLowerCase().includes(n);
+    if (!hit) return false;
+    const key = (r.id || r.name);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 /* Lance la requête réseau selon le mode courant (appelée par app.js et les facettes) */
@@ -124,9 +149,14 @@ export async function runDiscoverQuery() {
   try {
     if (d.mode === 'local') { d.results = SEASONAL_RECIPES; renderDiscover(); return; }
     if (d.mode === 'name') {
-      if (!d.search.trim()) { d.results = []; renderDiscover(); return; }
+      const q = d.search.trim();
+      if (!q) { d.results = []; renderDiscover(); return; }
       d.loading = true; renderDiscover();
-      d.results = await searchByName(d.search.trim());
+      const local = searchLocal(q);
+      let online = [];
+      try { online = await searchByName(q); } catch { online = []; }
+      const seen = new Set(local.map(r => (r.name || '').toLowerCase()));
+      d.results = [...local, ...online.filter(r => !seen.has((r.name || '').toLowerCase()))];
     } else if (d.mode === 'ingredient') {
       if (!d.search.trim()) { d.results = []; renderDiscover(); return; }
       d.loading = true; renderDiscover();
@@ -765,4 +795,12 @@ export function renderReglages() {
   set('rg-recipes', state.recipes.length);
   set('rg-fridge', state.fridge.length);
   set('rg-plan', Object.keys(state.planning).filter(k => MEALS.some(m => (state.planning[k][m.key] || []).length)).length);
+
+  // Champs de synchronisation familiale (sans écraser un champ en cours d'édition)
+  const sy = state.settings.sync || {};
+  const sv = (id, v) => { const e = document.getElementById(id); if (e && document.activeElement !== e) e.value = v; };
+  sv('sy-url', sy.url || '');
+  sv('sy-key', sy.anonKey || '');
+  sv('sy-family', sy.family || '');
+  set('rg-syncstate', (sy.url && sy.anonKey && sy.family) ? '🟢 Synchro familiale activée' : 'Locale uniquement');
 }

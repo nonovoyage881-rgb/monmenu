@@ -8,7 +8,7 @@
    GitHub Pages (ex : https://user.github.io/monmenu/).
    ════════════════════════════════════════════════════════════════ */
 
-const VERSION = 'monmenu-v7';
+const VERSION = 'monmenu-v9-flat';
 const SHELL_CACHE = `${VERSION}-shell`;
 const API_CACHE = `${VERSION}-api`;
 const FONT_CACHE = `${VERSION}-fonts`;
@@ -17,19 +17,20 @@ const FONT_CACHE = `${VERSION}-fonts`;
 const SHELL_ASSETS = [
   './',
   './index.html',
-  './css/styles.css',
-  './js/app.js',
-  './js/views.js',
-  './js/ui.js',
-  './js/store.js',
-  './js/api.js',
-  './js/db.js',
-  './js/config.js',
-  './js/utils.js',
+  './styles.css',
+  './app.js',
+  './views.js',
+  './ui.js',
+  './store.js',
+  './api.js',
+  './db.js',
+  './config.js',
+  './sync.js',
+  './utils.js',
   './manifest.webmanifest',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-maskable-512.png',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable-512.png',
 ];
 
 /* Installation : pré-cache du shell */

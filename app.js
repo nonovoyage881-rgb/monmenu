@@ -5,7 +5,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { initStore, bus, state, autoGenerateWeek, generateShopping, clearChecked,
-         exportData, importData, resetAll, setAISettings } from './store.js';
+         exportData, importData, resetAll, setAISettings, setSyncSettings } from './store.js';
 import { askAI } from './api.js';
 import { openRecipeForm, openFridgeForm, openImportUrl } from './ui.js';
 import {
@@ -144,6 +144,32 @@ function wireReglages() {
       key: document.getElementById('ai-key').value.trim(),
     });
     toast('Configuration IA enregistrée 🔑');
+  });
+
+  document.getElementById('sy-save')?.addEventListener('click', async () => {
+    const status = document.getElementById('sy-status');
+    const url = document.getElementById('sy-url').value.trim();
+    const anonKey = document.getElementById('sy-key').value.trim();
+    const family = document.getElementById('sy-family').value.trim();
+    if (!url || !anonKey || !family) {
+      status.innerHTML = '<div class="alert-banner warn"><span class="ico">⚠️</span><span>Remplissez les trois champs (URL, clé, code famille).</span></div>';
+      return;
+    }
+    status.innerHTML = '<div class="empty"><span class="spinner"></span> Connexion à la base familiale…</div>';
+    const res = await setSyncSettings({ url, anonKey, family });
+    if (res && res.ok) {
+      status.innerHTML = `<div class="alert-banner"><span class="ico">✅</span><span>Synchronisation activée ! ${res.count ? res.count + ' collection(s) récupérée(s).' : 'Vos données sont maintenant partagées.'}</span></div>`;
+      toast('Synchronisation familiale activée 🔄');
+    } else {
+      const map = {
+        LOAD_FAILED: 'Impossible de charger Supabase (connexion ?).',
+        QUERY_FAILED: 'Connexion refusée : vérifiez l\'URL, la clé et la table « monmenu ».',
+        INIT_FAILED: 'Échec de connexion : vérifiez l\'URL et la clé.',
+        INCOMPLETE: 'Informations incomplètes.',
+      };
+      const msg = (res && (map[res.reason] || res.message)) || 'Échec de la connexion.';
+      status.innerHTML = `<div class="alert-banner danger"><span class="ico">⚠️</span><span>${msg}</span></div>`;
+    }
   });
 
   document.getElementById('rg-export').addEventListener('click', () =>
