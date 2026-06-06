@@ -7,31 +7,31 @@
 
 /* ───────────────────────────── 1. Variables & thème ───────────────────────────── */
 :root {
-  /* Couleurs de fond — thème Botanique */
-  --bg:          #F3F4EE;   /* lin clair       */
-  --bg-alt:      #E9EBE0;   /* lin profond     */
-  --surface:     #FFFFFF;   /* blanc pur       */
-  --card:        #FAFAF6;
-  --border:      #DEE0D2;
-  --border-soft: #EAEBE0;
+  /* Couleurs de fond — thème Cocotte */
+  --bg:          #F4ECDD;   /* crème terre      */
+  --bg-alt:      #ECE1CC;   /* sable profond    */
+  --surface:     #FFF8EC;   /* crème clair      */
+  --card:        #FFFBF3;
+  --border:      #E7DAC2;
+  --border-soft: #F0E7D5;
 
-  /* Texte — contraste renforcé pour la lisibilité */
-  --text:    #1B1D16;
-  --text-2:  #45483B;
-  --muted:   #6F7363;
+  /* Texte — olive foncé chaleureux */
+  --text:    #3E4A3D;
+  --text-2:  #5C6553;
+  --muted:   #9A8466;
 
-  /* Accents — vert olive profond + argile chaude */
-  --sage:        #4C5B33;   /* olive profond (couleur primaire) */
-  --sage-deep:   #3B4827;
-  --sage-tint:   #ECEFE2;
-  --terra:       #A86A4F;   /* argile chaude (accent)  */
-  --terra-deep:  #8C5640;
-  --terra-tint:  #F3EAE3;
-  --gold:        #7E8B5A;   /* sauge tendre (secondaire) */
-  --gold-tint:   #EFF1E5;
-  --berry:       #7E6E8A;   /* prune douce (alertes) */
-  --danger:      #BF5B47;
-  --danger-tint: #F6E8E4;
+  /* Accents — terre cuite + potager + argile */
+  --sage:        #C9603F;   /* terre cuite (couleur primaire) */
+  --sage-deep:   #A94E32;
+  --sage-tint:   #F7E6DC;
+  --terra:       #BD5E3A;   /* terre cuite chaude (accent) */
+  --terra-deep:  #9F4E2F;
+  --terra-tint:  #F6E5DB;
+  --gold:        #7E8C5A;   /* vert potager (secondaire) */
+  --gold-tint:   #ECEFDF;
+  --berry:       #9C6A5A;   /* terracotta douce (alertes) */
+  --danger:      #C0533A;
+  --danger-tint: #F7E7E0;
 
   /* Géométrie */
   --radius-sm: 10px;
@@ -46,9 +46,9 @@
   --shadow:    0 6px 24px rgba(30,30,28,0.06);
   --shadow-lg: 0 18px 48px rgba(30,30,28,0.12);
 
-  /* Typographie — Lexend (lisibilité optimisée), titres et corps */
-  --font-serif: 'Lexend', system-ui, -apple-system, sans-serif;
-  --font-sans:  'Lexend', system-ui, -apple-system, sans-serif;
+  /* Typographie — Cocotte : Fraunces (titres) + Nunito (corps) */
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans:  'Nunito', system-ui, -apple-system, sans-serif;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -63,8 +63,8 @@ body {
   background-color: var(--bg);
   /* Texture subtile : halos verts doux en fond */
   background-image:
-    radial-gradient(1200px 600px at 12% -8%, rgba(76,91,51,0.06), transparent 60%),
-    radial-gradient(1000px 600px at 100% 0%, rgba(126,139,90,0.07), transparent 55%);
+    radial-gradient(1200px 600px at 12% -8%, rgba(201,96,63,0.07), transparent 60%),
+    radial-gradient(1000px 600px at 100% 0%, rgba(126,140,90,0.08), transparent 55%);
   background-attachment: fixed;
   color: var(--text);
   min-height: 100vh;

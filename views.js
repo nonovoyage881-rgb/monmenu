@@ -124,16 +124,19 @@ export function renderDiscover() {
   }
 }
 
+/* Normalisation légère pour la recherche : minuscules + sans accents */
+const stripA = (s) => (s || '').toString().toLowerCase().replace(/œ/g, 'oe').replace(/æ/g, 'ae').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
 /* Recherche dans les recettes locales (carnet + suggestions de saison) */
 function searchLocal(q) {
-  const n = q.toLowerCase();
+  const n = stripA(q);
   const pool = [...state.recipes, ...SEASONAL_RECIPES];
   const seen = new Set();
   return pool.filter(r => {
     if (!r || !r.name) return false;
-    const hit = r.name.toLowerCase().includes(n)
-      || (r.category || '').toLowerCase().includes(n)
-      || (r.origin || '').toLowerCase().includes(n);
+    const hit = stripA(r.name).includes(n)
+      || stripA(r.category).includes(n)
+      || stripA(r.origin).includes(n);
     if (!hit) return false;
     const key = (r.id || r.name);
     if (seen.has(key)) return false;
@@ -257,8 +260,8 @@ export function renderCarnet() {
   let items = state.recipes.slice().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   if (c.filter === 'fav') items = items.filter(r => r.favorite);
   if (c.search.trim()) {
-    const q = c.search.toLowerCase();
-    items = items.filter(r => r.name.toLowerCase().includes(q) || (r.category || '').toLowerCase().includes(q));
+    const q = stripA(c.search);
+    items = items.filter(r => stripA(r.name).includes(q) || stripA(r.category).includes(q));
   }
 
   count.textContent = `${items.length} recette(s)`;
